@@ -1,0 +1,71 @@
+[1] 20:09:04 [SUCCESS] master
+[2] 20:09:04 [SUCCESS] node1
+[1] 20:09:05 [SUCCESS] master
+[2] 20:09:06 [SUCCESS] node1
+[1] 20:09:06 [SUCCESS] master
+[2] 20:09:06 [SUCCESS] node1
+[1] 20:09:06 [SUCCESS] master
+[2] 20:09:06 [SUCCESS] node1
+
+ Performance counter stats for '/home/s2010234/test/cache_ordinary':
+
+            81,473      L1-dcache-load-misses:u   #    0.29% of all L1-dcache accesses
+        27,964,817      L1-dcache-loads:u                                           
+        27,964,817      L1-dcache-stores:u                                          
+
+       0.011662470 seconds time elapsed
+
+       0.011718000 seconds user
+       0.000000000 seconds sys
+
+
+
+ Performance counter stats for '/home/s2010234/test/cache_optimize':
+
+           133,854      L1-dcache-load-misses:u   #    0.43% of all L1-dcache accesses
+        31,487,120      L1-dcache-loads:u                                           
+        31,487,120      L1-dcache-stores:u                                          
+
+       0.011494160 seconds time elapsed
+
+       0.011546000 seconds user
+       0.000000000 seconds sys
+
+
+
+ Performance counter stats for '/home/s2010234/test/cache_optimize2way':
+
+           127,028      L1-dcache-load-misses:u   #    0.42% of all L1-dcache accesses
+        30,598,306      L1-dcache-loads:u                                           
+        30,598,306      L1-dcache-stores:u                                          
+
+       0.011499080 seconds time elapsed
+
+       0.011550000 seconds user
+       0.000000000 seconds sys
+
+
+
+ Performance counter stats for '/home/s2010234/test/cache_ordinary' (100 runs):
+
+        61,309,226      instructions:u            #    2.26  insn per cycle           ( +-  0.01% )
+        27,160,061      cycles:u                                                      ( +-  0.02% )
+
+          0.013955 +- 0.000448 seconds time elapsed  ( +-  3.21% )
+
+
+ Performance counter stats for '/home/s2010234/test/cache_optimize' (100 runs):
+
+        69,072,351      instructions:u            #    2.54  insn per cycle           ( +-  0.03% )
+        27,164,935      cycles:u                                                      ( +-  0.02% )
+
+          0.013910 +- 0.000491 seconds time elapsed  ( +-  3.53% )
+
+
+ Performance counter stats for '/home/s2010234/test/cache_optimize2way' (100 runs):
+
+        74,378,516      instructions:u            #    2.74  insn per cycle           ( +-  0.09% )
+        27,159,771      cycles:u                                                      ( +-  0.02% )
+
+          0.013280 +- 0.000311 seconds time elapsed  ( +-  2.34% )
+

@@ -1,0 +1,71 @@
+[1] 22:50:53 [SUCCESS] master
+[2] 22:50:53 [SUCCESS] node1
+[1] 22:50:55 [SUCCESS] master
+[2] 22:50:55 [SUCCESS] node1
+[1] 22:50:55 [SUCCESS] master
+[2] 22:50:55 [SUCCESS] node1
+[1] 22:50:55 [SUCCESS] master
+[2] 22:50:55 [SUCCESS] node1
+
+ Performance counter stats for '/home/s2010234/test/superscalar_linear' (100 runs):
+
+        46,249,956      instructions:u            #    1.08  insn per cycle           ( +-  0.00% )
+        42,681,788      cycles:u                                                      ( +-  0.17% )
+
+         0.0176309 +- 0.0000309 seconds time elapsed  ( +-  0.18% )
+
+
+ Performance counter stats for '/home/s2010234/test/superscalar_2way' (100 runs):
+
+        65,124,649      instructions:u            #    1.52  insn per cycle           ( +-  0.00% )
+        42,795,050      cycles:u                                                      ( +-  0.15% )
+
+         0.0176901 +- 0.0000277 seconds time elapsed  ( +-  0.16% )
+
+
+ Performance counter stats for '/home/s2010234/test/superscalar_tree' (100 runs):
+
+        72,468,787      instructions:u            #    1.80  insn per cycle           ( +-  0.00% )
+        40,214,019      cycles:u                                                      ( +-  0.15% )
+
+         0.0171894 +- 0.0000273 seconds time elapsed  ( +-  0.16% )
+
+
+ Performance counter stats for '/home/s2010234/test/superscalar_linear':
+
+           133,941      L1-dcache-load-misses:u   #    0.57% of all L1-dcache accesses
+        23,558,804      L1-dcache-loads:u                                           
+        23,558,804      L1-dcache-stores:u                                          
+
+       0.018174220 seconds time elapsed
+
+       0.018222000 seconds user
+       0.000000000 seconds sys
+
+
+
+ Performance counter stats for '/home/s2010234/test/superscalar_2way':
+
+           219,680      L1-dcache-load-misses:u   #    0.69% of all L1-dcache accesses
+        31,948,268      L1-dcache-loads:u                                           
+        31,948,268      L1-dcache-stores:u                                          
+
+       0.018113450 seconds time elapsed
+
+       0.018154000 seconds user
+       0.000000000 seconds sys
+
+
+
+ Performance counter stats for '/home/s2010234/test/superscalar_tree':
+
+           268,123      L1-dcache-load-misses:u   #    0.79% of all L1-dcache accesses
+        34,059,141      L1-dcache-loads:u                                           
+        34,059,141      L1-dcache-stores:u                                          
+
+       0.017141470 seconds time elapsed
+
+       0.017179000 seconds user
+       0.000000000 seconds sys
+
+
