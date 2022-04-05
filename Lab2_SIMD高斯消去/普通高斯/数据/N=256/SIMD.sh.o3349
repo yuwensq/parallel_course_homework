@@ -1,0 +1,6 @@
+scale: 256
+common_gauss: 1 44.208
+opt1_gauss: 1 44.176
+opt2_gauss: 1 28.0859
+opt1And2_gauss: 1 28.1321
+
