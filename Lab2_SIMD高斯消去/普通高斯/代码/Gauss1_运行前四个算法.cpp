@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <sys/time.h>
-#define N 1024
+#define N 2048
 #define millitime(x) (x.tv_sec * 1000 + x.tv_usec / 1000.0)
 using namespace std;
 
@@ -46,7 +46,7 @@ void test(void (*f)(int), int scale){
     gettimeofday(&finish, NULL);
 	milliseconds = millitime(finish) - millitime(start);
     single_time = milliseconds / counter;
-    cout << single_time << endl;
+    cout << counter << " " << single_time << endl;
 }
 
 void common_gauss(int n) {
