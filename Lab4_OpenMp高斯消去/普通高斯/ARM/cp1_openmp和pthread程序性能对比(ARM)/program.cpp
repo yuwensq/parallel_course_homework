@@ -4,75 +4,21 @@
 #include <semaphore.h>
 #include <string>
 #include <fstream>
+#include <omp.h>
 #include <sys/time.h>
 #define millitime(x) (x.tv_sec * 1000 + x.tv_usec / 1000.0)
 #define abs(x) ((x < 0) ? -(x) : (x))
-#define MaxN 1000
+#define MaxN 2048
 using namespace std;
-
-struct threadParam_td {
-    int k;
-    int t_id;
-};
 
 int n, thread_count;
 string paths[4];
 string path;
-string file_num = "3";
+string file_num = "1";
 float **A = NULL, **mother = NULL;
 sem_t *sem_Division;
 sem_t *sem_Elimination;
 sem_t sem_leader;
-pthread_barrier_t barrier;
-
-void common_gauss() {
-	for (int k = 0; k < n; k++) {
-		float ele = A[k][k];
-		for (int j = k + 1; j < n; j++)
-			A[k][j] = A[k][j] / ele;
-		A[k][k] = 1.0;
-		for (int i = k + 1; i < n; i++) {
-			for (int j = k + 1; j < n; j++)
-				A[i][j] = A[i][j] - A[i][k] * A[k][j];
-			A[i][k] = 0;
-		}
-	}
-}
-
-void *thread_func_d(void *param) {
-    threadParam_td *p = (threadParam_td *)param;
-    int k = p->k;
-    int i = k + p->t_id + 1;
-    for (i; i < n; i += thread_count) {
-    	for (int j = k + 1; j < n; j++)
-        	A[i][j] = A[i][j] - A[i][k] * A[k][j];
-	A[i][k] = 0;
-	}	
-    pthread_exit(NULL);
-    return NULL;
-}
-
-void dynamic_gauss() {
-    for (int k = 0; k < n; k++) {
-        float ele = A[k][k];
-        for (int j = k + 1; j < n; j++)
-            A[k][j] = A[k][j] / ele;
-        A[k][k] = 1.0;
-        int worker_count = thread_count;
-        pthread_t *handles = new pthread_t[worker_count];
-        threadParam_td *param = new threadParam_td[worker_count];
-        for(int t_id = 0; t_id < worker_count; t_id++) {
-            param[t_id].k = k;
-            param[t_id].t_id = t_id;
-        }
-        for(int t_id = 0; t_id < worker_count; t_id++)
-            pthread_create(handles + t_id, NULL, thread_func_d, param + t_id);
-        for(int t_id = 0; t_id < worker_count; t_id++)
-            pthread_join(handles[t_id], NULL);
-        delete[] handles;
-        delete[] param;
-    }
-}
 
 void *thread_func_ssem(void *param) {
     long long t_id = (long long)param;
@@ -81,7 +27,7 @@ void *thread_func_ssem(void *param) {
             float ele = A[k][k];
             for (int j = k + 1; j < n; j++)
                 A[k][j] = A[k][j] / ele;
-            A[k][k] = 1.0;            
+            A[k][k] = 1.0;
             for (int i = 0; i < thread_count - 1; i++)
                 sem_post(sem_Division + i);
         }
@@ -90,7 +36,7 @@ void *thread_func_ssem(void *param) {
         for (int i = k + t_id + 1; i < n; i += thread_count) {
 			for (int j = k + 1; j < n; j++)
 				A[i][j] = A[i][j] - A[i][k] * A[k][j];
-			A[i][k] = 0;            
+			A[i][k] = 0;
         }
         if (t_id == 0) {
             for (int i = 0; i < thread_count - 1; i++)
@@ -103,28 +49,6 @@ void *thread_func_ssem(void *param) {
             sem_wait(sem_Elimination + t_id - 1);
         }
     }
-    pthread_exit(NULL);
-    return NULL;
-}
-
-
-void *thread_func_sb(void *param) {
-    long long t_id = (long long)param;
-    for (int k = 0; k < n; k++) {
-        if (t_id == 0) {
-            float ele = A[k][k];
-            for (int j = k + 1; j < n; j++)
-                A[k][j] = A[k][j] / ele;
-            A[k][k] = 1.0;
-        }
-        pthread_barrier_wait(&barrier);
-		for (int i = k + 1 + t_id; i < n; i += thread_count) {
-			for (int j = k + 1; j < n; j++)
-				A[i][j] = A[i][j] - A[i][k] * A[k][j];
-			A[i][k] = 0;
-		}
-		pthread_barrier_wait(&barrier);
-	}
     pthread_exit(NULL);
     return NULL;
 }
@@ -152,15 +76,24 @@ void static_gauss_sem() {
     delete[] sem_Elimination;
 }
 
-void static_gauss_barrier() {
-    pthread_barrier_init(&barrier, NULL, thread_count);
-    pthread_t *handles = new pthread_t[thread_count];
-    for (int i = 0; i < thread_count; i++)
-        pthread_create(handles + i, NULL, thread_func_sb, (void *)(long long)i);
-    for (int i = 0; i < thread_count; i++)
-        pthread_join(handles[i], NULL);
-    delete[] handles;
-    pthread_barrier_destroy(&barrier);
+void open_mp() {
+    int i, j, k, ele;
+    #pragma omp parallel num_threads(thread_count), private(i, j, k, ele)
+	for (k = 0; k < n; k++) {
+        #pragma omp single
+        {
+            ele = A[k][k];
+            for (j = k + 1; j < n; j++)
+                A[k][j] = A[k][j] / ele;
+            A[k][k] = 1.0;
+        }
+        #pragma omp for
+		for (i = k + 1; i < n; i++) {
+			for (j = k + 1; j < n; j++)
+				A[i][j] = A[i][j] - A[i][k] * A[k][j];
+			A[i][k] = 0;
+		}
+	}
 }
 
 void init() {
@@ -250,32 +183,28 @@ void test(void (*f)()) {
 
 int main(int argc, char *argv[])
 {
-    paths[0] = "common_gauss";
-    paths[1] = "dynamic_gauss";
-    paths[2] = "static_gauss_sem";
-    paths[3] = "static_gauss_barrier";
+    paths[0] = "static_gauss_sem";
+    paths[1] = "open_mp";
     void (*p[4])();
-    p[0] = &common_gauss;
-    p[1] = &dynamic_gauss;
-    p[2] = &static_gauss_sem;
-    p[3] = &static_gauss_barrier;
- 	n = 10;
+    p[0] = &static_gauss_sem;
+    p[1] = &open_mp;
+ 	n = 4;
 	thread_count = atoi(argv[1]);
 	while (n <= MaxN) {
     	init();
     	cout << "n: " << n << endl;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 2; i++) {
             path = paths[i] + file_num;
             cout << path << ": ";
             test(p[i]);
         }
     	release_atrix();
-        if (n < 100)
-		    n += 10;
-        else
-            n += 100;
+		if (n < 256)
+		    	n *= 2;
+		else
+			n += 128;
 	}
     return 0;
 }
 
- 
+

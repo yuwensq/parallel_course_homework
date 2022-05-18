@@ -1,10 +1,12 @@
 #include <vector>
+#include <arm_neon.h>
 #include <pthread.h>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <cmath>
+#include <omp.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unordered_map>
@@ -14,7 +16,7 @@
 using namespace std;
 
 int thread_count;
-string paths[3];
+string paths[4];
 string path;
 string file_num = "4";
 vector<string> file_names;
@@ -215,6 +217,105 @@ void static_gausst_p() {
     pthread_barrier_destroy(&barrier4);
 }
 
+
+void open_mp_gausst() {
+	int i, p, rowR;
+	bool lpHasChanged;
+	#pragma omp parallel num_threads(thread_count), private(i, p, rowR, lpHasChanged)
+	for (i = 0; i < NUME; i++) {
+		while (lp[i] > -1) {
+			if (!(lpE2R.find(lp[i]) == lpE2R.end())) {
+				rowR = lpE2R[lp[i]];
+				#pragma omp for
+				for (p = 0; p < totalCols; p++) {
+					A[i][p] ^= A[rowR][p];
+				}
+				#pragma omp master
+				{
+				lpHasChanged = false;
+				for (p = totalCols - 1; p >= 3; p -= 4) {
+					int x = ((A[i][p] | A[i][p - 1]) | (A[i][p - 2] | A[i][p - 3]));
+					if (x == 0)
+						continue;
+					break;
+				}
+				for (p; p >= 0; p--) {
+					if (A[i][p] != 0) {
+                        lpHasChanged = true;
+                        for (int k = 31; k >= 0; k--) {
+                            if ((A[i][p] & (1 << k)) != 0) {
+                                lp[i] = p * 32 + k;
+                                break;
+                            }
+                        }
+                    	break;
+                    }
+				}
+				if (lpHasChanged == false)
+					lp[i] = -1;
+				}
+				#pragma omp barrier
+			}
+			else {
+				#pragma omp barrier
+				#pragma omp master
+				lpE2R[lp[i]] = i;
+				break;
+				#pragma omp barrier
+			}
+		}
+	}
+}
+
+void open_mp_gausst_simd() {
+	int i, p, rowR;
+	bool lpHasChanged;
+	#pragma omp parallel num_threads(thread_count), private(i, p, rowR, lpHasChanged)
+	for (i = 0; i < NUME; i++) {
+		while (lp[i] > -1) {
+			if (!(lpE2R.find(lp[i]) == lpE2R.end())) {
+				rowR = lpE2R[lp[i]];
+				#pragma omp for simd safelen(4)
+				for (p = 0; p < totalCols; p++) {
+					A[i][p] ^= A[rowR][p];
+				}
+				#pragma omp master
+				{
+				lpHasChanged = false;		
+				for (p = totalCols - 1; p >= 3; p -= 4) {
+					int x = ((A[i][p] | A[i][p - 1]) | (A[i][p - 2] | A[i][p - 3]));
+					if (x == 0)
+						continue;
+					break;
+				}
+				for (p; p >= 0; p--) {
+					if (A[i][p] != 0) {
+                        lpHasChanged = true;
+                        for (int k = 31; k >= 0; k--) {
+                            if ((A[i][p] & (1 << k)) != 0) {
+                                lp[i] = p * 32 + k;
+                                break;
+                            }
+                        }
+                    	break;
+                    }
+				}
+				if (lpHasChanged == false)
+					lp[i] = -1;
+				}
+				#pragma omp barrier
+			}
+			else {
+				#pragma omp barrier
+				#pragma omp master
+				lpE2R[lp[i]] = i;
+				break;
+				#pragma omp barrier
+			}
+		}
+	}
+}
+
 void printResult() {//������
 	for (int i = 0; i < NUME; i++) {
 		if (lp[i] == -1) {
@@ -300,14 +401,18 @@ int main(int argc, char *argv[]) {
 	file_names.push_back("7_8399_6375_4535");
     paths[0] = "common_gausst";
     paths[1] = "static_gausst_p";
-    void (*p[3])();
+	paths[2] = "open_mp";
+	paths[3] = "open_mp_simd";
+    void (*p[4])();
     p[0] = &common_gausst;
     p[1] = &static_gausst_p;
+	p[2] = &open_mp_gausst;
+	p[3] = &open_mp_gausst_simd;
     for (int i = 0; i < file_names.size(); i++) {
         file_name = file_names[i];
         fresh_arg();
         initMartix();
-        for (int j = 0; j < 2; j++) {
+        for (int j = 0; j < 4; j++) {
             path = paths[j] + file_num;
             test(p[j]);
         }
@@ -315,5 +420,6 @@ int main(int argc, char *argv[]) {
     }
 	return 0;
 }
+
 
 
