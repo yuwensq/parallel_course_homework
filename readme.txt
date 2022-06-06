@@ -1,1 +1,0 @@
-This is my parallel course's homework.
