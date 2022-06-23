@@ -94,21 +94,21 @@ void testResult() {
 
 void block_run(int version);
 
-void block_gauss(int, int);
+void block_gauss(int, int); //块划分阻塞式广播通信算法
 
-void block_gauss_opt(int, int);
+void block_gauss_opt(int, int); //块划分阻塞式广播通信结合SSE和OpenMp优化算法
 
 void recycle_run(int version);
 
-void recycle_gauss(int, int);
+void recycle_gauss(int, int); //循环划分阻塞式广播通信算法
 
-void recycle_gauss_opt(int, int);
+void recycle_gauss_opt(int, int); //循环划分阻塞式广播通信结合SSE和OpenMp优化算法
 
-void recycle_pipeline_gauss(int, int);
+void recycle_pipeline_gauss(int, int); //循环划分阻塞式流水线通信算法
 
-void recycle_pipeline_gauss_opt(int, int);
+void recycle_pipeline_gauss_opt(int, int); //循环划分阻塞式流水线通信结合SSE和OpenMp优化算法
 
-void recycle_bcast_nonblock_gauss(int, int);
+void recycle_bcast_nonblock_gauss(int, int); //循环划分非阻塞式广播通信算法
 
 int main(int argc, char *argv[])
 {
