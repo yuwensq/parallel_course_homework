@@ -83,27 +83,6 @@ void printres() { //打印结果
 		puts("");
 	}
 }
-/*void dowork() {  //串行消元--被消元行->消元子
-	int rank;
-	MPI_Status status;
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);	//获取当前进程号
-	double st = MPI_Wtime();	 //计时
-	for (int i = 0; i < elinenum; i++) {
-		while (!eline[i].isnull()) {  //只要被消元行非空，循环处理
-			int tcol = eline[i].mycol;  //被消元行的首项
-			if (!eliminer[tcol].isnull())    //如果存在对应消元子
-				eline[i].doxor(eliminer[tcol]);
-			else {
-				eliminer[tcol] = eline[i];    //由于被消元行升格为消元子后不参与后续处理，可以直接用=来浅拷贝
-				break;
-			}
-		}
-	}
-	double ed = MPI_Wtime();	 //计时
-	if (rank == 0) {	//只有0号进程中有最终结果
-		printf("cost time:%.4lf\n", ed - st);
-	}
-}*/
 
 void dowork() {  //串行消元--消元子->被消元行
 	int rank;
